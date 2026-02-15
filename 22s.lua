@@ -11,6 +11,8 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local Player = Players.LocalPlayer
 
 -- Safe character wait - don't force anything
@@ -59,6 +61,167 @@ local Values = {
     STEAL_DURATION = 1.3,
     DEFAULT_GRAVITY = 196.2,
     GalaxyGravityPercent = 70,
+    HOP_POWER = 35,
+    HOP_COOLDOWN = 0.08
+}
+
+local KEYBINDS = {
+    SPEED = Enum.KeyCode.V,
+    SPIN = Enum.KeyCode.N,
+    GALAXY = Enum.KeyCode.M,
+    BATAIMBOT = Enum.KeyCode.X,
+    NUKE = Enum.KeyCode.Q,
+    AUTOLEFT = Enum.KeyCode.Z,
+    AUTORIGHT = Enum.KeyCode.C
+}
+
+-- Load Config FIRST before anything else
+local configLoaded = false
+pcall(function()
+    if readfile and isfile and isfile(ConfigFileName) then
+        local data = HttpService:JSONDecode(readfile(ConfigFileName))
+        if data then
+            for k, v in pairs(data) do
+                if Enabled[k] ~= nil then
+                    Enabled[k] = v
+                end
+            end
+            for k, v in pairs(data) do
+                if Values[k] ~= nil then
+                    Values[k] = v
+                end
+            end
+            if data.KEY_SPEED then KEYBINDS.SPEED = Enum.KeyCode[data.KEY_SPEED] end
+            if data.KEY_SPIN then KEYBINDS.SPIN = Enum.KeyCode[data.KEY_SPIN] end
+            if data.KEY_GALAXY then KEYBINDS.GALAXY = Enum.KeyCode[data.KEY_GALAXY] end
+            if data.KEY_BATAIMBOT then KEYBINDS.BATAIMBOT = Enum.KeyCode[data.KEY_BATAIMBOT] end
+            if data.KEY_AUTOLEFT then KEYBINDS.AUTOLEFT = Enum.KeyCode[data.KEY_AUTOLEFT] end
+            if data.KEY_AUTORIGHT then KEYBINDS.AUTORIGHT = Enum.KeyCode[data.KEY_AUTORIGHT] end
+            configLoaded = true
+            print("[22S] Config loaded successfully!")
+        end
+    end
+end)
+
+-- Save Config
+local function SaveConfig()
+    local data = {}
+    for k, v in pairs(Enabled) do
+        data[k] = v
+    end
+    for k, v in pairs(Values) do
+        data[k] = v
+    end
+    data.KEY_SPEED = KEYBINDS.SPEED.Name
+    data.KEY_SPIN = KEYBINDS.SPIN.Name
+    data.KEY_GALAXY = KEYBINDS.GALAXY.Name
+    data.KEY_BATAIMBOT = KEYBINDS.BATAIMBOT.Name
+    data.KEY_AUTOLEFT = KEYBINDS.AUTOLEFT.Name
+    data.KEY_AUTORIGHT = KEYBINDS.AUTORIGHT.Name
+    
+    local success = false
+    if writefile then
+        pcall(function()
+            writefile(ConfigFileName, HttpService:JSONEncode(data))
+            success = true
+        end)
+    end
+    return success
+end
+
+local Connections = {}
+local isStealing = false
+local lastBatSwing = 0
+local BAT_SWING_COOLDOWN = 0.12
+
+local SlapList = {
+    {1, "Bat"}, {2, "Slap"}, {3, "Iron Slap"}, {4, "Gold Slap"},
+    {5, "Diamond Slap"}, {6, "Emerald Slap"}, {7, "Ruby Slap"},
+    {8, "Dark Matter Slap"}, {9, "Flame Slap"}, {10, "Nuclear Slap"},
+    {11, "Galaxy Slap"}, {12, "Glitched Slap"}
+}
+
+local ADMIN_KEY = "78a772b6-9e1c-4827-ab8b-04a07838f298"
+local REMOTE_EVENT_ID = "352aad58-c786-4998-886b-3e4fa390721e"
+local BALLOON_REMOTE = ReplicatedStorage:FindFirstChild(REMOTE_EVENT_ID, true)
+
+local function INSTANT_NUKE(target)
+    if not BALLOON_REMOTE or not target then return end
+    for _, p in ipairs({"balloon", "ragdoll", "jumpscare", "morph", "tiny", "rocket", "inverse", "jail"}) do
+        BALLOON_REMOTE:FireServer(ADMIN_KEY, target, p)
+    end
+end
+
+local function getNearestPlayer()
+    local c = Player.Character
+    if not c then return nil end
+    local h = c:FindFirstChild("HumanoidRootPart")
+    if not h then return nil end
+    local pos = h.Position
+    local nearest = nil
+    local dist = math.huge
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= Player and p.Character then
+            local oh = p.Character:FindFirstChild("HumanoidRootPart")
+            if oh then
+                local d = (pos - oh.Position).Magnitude
+                if d < dist then
+                    dist = d
+                    nearest = p
+                end
+            end
+        end
+    end
+    return nearest
+end
+
+local function findBat()
+    local c = Player.Character
+    if not c then return nil end
+    local bp = Player:FindFirstChildOfClass("Backpack")
+    for _, ch in ipairs(c:GetChildren()) do
+        if ch:IsA("Tool") and ch.Name:lower():find("bat") then
+            return ch
+        end
+    end
+    if bp then
+        for _, ch in ipairs(bp:GetChildren()) do
+            if ch:IsA("Tool") and ch.Name:lower():find("bat") then
+                return ch
+            end
+        end
+    end
+    for _, i in ipairs(SlapList) do
+        local t = c:FindFirstChild(i[2]) or (bp and bp:FindFirstChild(i[2]))
+        if t then return t end
+    end
+    return nil
+end
+
+local function startSpamBat()
+    if Connections.spamBat then return end
+    Connections.spamBat = RunService.Heartbeat:Connect(function()
+        if not Enabled.SpamBat then return end
+        local c = Player.Character
+        if not c then return end
+        local bat = findBat()
+        if not bat then return end
+        if bat.Parent ~= c then
+            bat.Parent = c
+        end
+        local now = tick()
+        if now - lastBatSwing < BAT_SWING_COOLDOWN then return end
+        lastBatSwing = now
+        pcall(function() bat:Activate() end)
+    end)
+end
+
+local function stopSpamBat()
+    if Connections.spamBat then
+        Connections.spamBat:Disconnect()
+        Connections.spamBat = nil
+    end
+end
 
 local spinBAV = nil
 
@@ -1357,7 +1520,7 @@ local C = {
 }
 
 local sg = Instance.new("ScreenGui")
-sg.Name = "GONZO_HUB"
+sg.Name = "22S_BLUE"
 sg.ResetOnSpawn = false
 sg.Parent = Player.PlayerGui
 
@@ -1429,7 +1592,7 @@ ProgressLabel = Instance.new("TextLabel", progressBar)
 ProgressLabel.Size = UDim2.new(0.35, 0, 0.5, 0)
 ProgressLabel.Position = UDim2.new(0, 10 * guiScale, 0, 0)
 ProgressLabel.BackgroundTransparency = 1
-ProgressLabel.Text = "GONZO"
+ProgressLabel.Text = "READY"
 ProgressLabel.TextColor3 = C.text
 ProgressLabel.Font = Enum.Font.GothamBold
 ProgressLabel.TextSize = 14 * guiScale
@@ -1440,7 +1603,7 @@ ProgressPercentLabel = Instance.new("TextLabel", progressBar)
 ProgressPercentLabel.Size = UDim2.new(1, 0, 0.5, 0)
 ProgressPercentLabel.BackgroundTransparency = 1
 ProgressPercentLabel.Text = ""
-ProgressPercentLabel.TextColor3 = Color3.fromRGB(160, 0, 255)
+ProgressPercentLabel.TextColor3 = C.purpleLight
 ProgressPercentLabel.Font = Enum.Font.GothamBlack
 ProgressPercentLabel.TextSize = 18 * guiScale
 ProgressPercentLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -1480,7 +1643,7 @@ Instance.new("UICorner", ProgressBarFill).CornerRadius = UDim.new(1, 0)
 
 -- Main Window
 local main = Instance.new("Frame", sg)
-main.Name = "GONZO HUB"
+main.Name = "Main"
 main.Size = UDim2.new(0, 560 * guiScale, 0, 740 * guiScale)
 main.Position = isMobile and UDim2.new(0.5, -280 * guiScale, 0.5, -370 * guiScale) or UDim2.new(1, -580, 0, 20)
 main.BackgroundColor3 = Color3.fromRGB(2, 2, 4)
@@ -1547,7 +1710,7 @@ local titleLabel = Instance.new("TextLabel", header)
 titleLabel.Size = UDim2.new(1, 0, 0, 32 * guiScale)
 titleLabel.Position = UDim2.new(0, 0, 0, 10 * guiScale)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "GONZO HUB"
+titleLabel.Text = "22S DUELS"
 titleLabel.TextColor3 = C.text
 titleLabel.Font = Enum.Font.GothamBlack
 titleLabel.TextSize = 28 * guiScale
@@ -1557,9 +1720,9 @@ titleLabel.ZIndex = 5
 local subtitleLabel = Instance.new("TextLabel", header)
 subtitleLabel.Size = UDim2.new(1, 0, 0, 24 * guiScale)
 subtitleLabel.Position = UDim2.new(0, 0, 0, 40 * guiScale)
-subtitleLabel.BackgroundTransparency = 0
-subtitleLabel.Text = "hai la gonzo pe discord"
-subtitleLabel.TextColor3 = Color3.fromRGB(160, 0, 255)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.Text = "discord.gg/22s"
+subtitleLabel.TextColor3 = C.purpleLight
 subtitleLabel.Font = Enum.Font.GothamBold
 subtitleLabel.TextSize = 16 * guiScale
 subtitleLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -1754,14 +1917,13 @@ end
 
 -- CLEAN SLIDER - No box - SPACED OUT
 local function createSlider(parent, yPos, labelText, minVal, maxVal, valueKey, callback)
-
     local container = Instance.new("Frame", parent)
     container.Size = UDim2.new(1, -10 * guiScale, 0, 56 * guiScale)
     container.Position = UDim2.new(0, 5 * guiScale, 0, yPos * guiScale)
     container.BackgroundTransparency = 1
     container.BorderSizePixel = 0
     container.ZIndex = 3
-
+    
     local label = Instance.new("TextLabel", container)
     label.Size = UDim2.new(0.6, 0, 0, 20 * guiScale)
     label.Position = UDim2.new(0, 10 * guiScale, 0, 4 * guiScale)
@@ -1772,78 +1934,52 @@ local function createSlider(parent, yPos, labelText, minVal, maxVal, valueKey, c
     label.TextSize = 12 * guiScale
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.ZIndex = 4
-
+    
     local defaultVal = Values[valueKey]
-
+    
     local valueInput = Instance.new("TextBox", container)
     valueInput.Size = UDim2.new(0, 50 * guiScale, 0, 22 * guiScale)
     valueInput.Position = UDim2.new(1, -58 * guiScale, 0, 2 * guiScale)
-    valueInput.BackgroundColor3 = Color3.fromRGB(15, 10, 25)
+    valueInput.BackgroundColor3 = Color3.fromRGB(20, 15, 30)
     valueInput.Text = tostring(defaultVal)
-    valueInput.TextColor3 = Color3.fromRGB(200, 120, 255)
+    valueInput.TextColor3 = C.purpleLight
     valueInput.Font = Enum.Font.GothamBold
     valueInput.TextSize = 12 * guiScale
     valueInput.ClearTextOnFocus = false
     valueInput.ZIndex = 4
     Instance.new("UICorner", valueInput).CornerRadius = UDim.new(0, 6 * guiScale)
-
-    -- SLIDER BACKGROUND (mai inchis)
+    
     local sliderBg = Instance.new("Frame", container)
     sliderBg.Size = UDim2.new(0.92, 0, 0, 10 * guiScale)
     sliderBg.Position = UDim2.new(0.04, 0, 0, 32 * guiScale)
-    sliderBg.BackgroundColor3 = Color3.fromRGB(10, 8, 18)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(20, 15, 30)
     sliderBg.ZIndex = 4
     Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
-
+    
     local pct = (defaultVal - minVal) / (maxVal - minVal)
-
-    -- SLIDER FILL (NEON PURPLE)
+    
     local sliderFill = Instance.new("Frame", sliderBg)
     sliderFill.Size = UDim2.new(pct, 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
+    sliderFill.BackgroundColor3 = C.purple
     sliderFill.ZIndex = 5
     Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
-
-    -- Gradient neon
-    local gradient = Instance.new("UIGradient", sliderFill)
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 0, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 0, 255))
-    }
-
-    -- Glow stroke
-    local glow = Instance.new("UIStroke", sliderFill)
-    glow.Color = Color3.fromRGB(200, 0, 255)
-    glow.Thickness = 2
-    glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-    game:GetService("TweenService"):Create(
-        glow,
-        TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-        {Thickness = 4}
-    ):Play()
-
-    -- THUMB MOV
+    
     local thumb = Instance.new("Frame", sliderBg)
     thumb.Size = UDim2.new(0, 16 * guiScale, 0, 16 * guiScale)
     thumb.Position = UDim2.new(pct, -8 * guiScale, 0.5, -8 * guiScale)
-    thumb.BackgroundColor3 = Color3.fromRGB(210, 120, 255)
+    thumb.BackgroundColor3 = Color3.new(1, 1, 1)
     thumb.ZIndex = 6
     Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
-
-    local thumbStroke = Instance.new("UIStroke", thumb)
-    thumbStroke.Color = Color3.fromRGB(255, 255, 255)
-    thumbStroke.Thickness = 1.5
-
+    
     local sliderBtn = Instance.new("TextButton", sliderBg)
     sliderBtn.Size = UDim2.new(1, 0, 3, 0)
     sliderBtn.Position = UDim2.new(0, 0, -1, 0)
     sliderBtn.BackgroundTransparency = 1
     sliderBtn.Text = ""
     sliderBtn.ZIndex = 7
-
+    
     local dragging = false
-
+    
     local function updateSlider(rel, skipCallback)
         rel = math.clamp(rel, 0, 1)
         sliderFill.Size = UDim2.new(rel, 0, 1, 0)
@@ -1855,7 +1991,7 @@ local function createSlider(parent, yPos, labelText, minVal, maxVal, valueKey, c
             callback(val)
         end
     end
-
+    
     local function setSliderValue(val)
         val = math.clamp(val, minVal, maxVal)
         local rel = (val - minVal) / (maxVal - minVal)
@@ -1864,23 +2000,23 @@ local function createSlider(parent, yPos, labelText, minVal, maxVal, valueKey, c
         valueInput.Text = tostring(val)
         Values[valueKey] = val
     end
-
+    
     SliderSetters[valueKey] = setSliderValue
-
+    
     sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
-
+    
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
     end)
-
+    
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             updateSlider((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X)
         end
     end)
-
+    
     valueInput.FocusLost:Connect(function()
         local n = tonumber(valueInput.Text)
         if n then
@@ -1893,7 +2029,7 @@ local function createSlider(parent, yPos, labelText, minVal, maxVal, valueKey, c
             callback(n)
         end
     end)
-
+    
     return container, setSliderValue
 end
 
@@ -1987,8 +2123,7 @@ _G.setAutoRightVisual = VisualSetters.AutoRightEnabled
 local SaveBtn = Instance.new("TextButton", rightSide)
 SaveBtn.Size = UDim2.new(1, -10 * guiScale, 0, 50 * guiScale)
 SaveBtn.Position = UDim2.new(0, 5 * guiScale, 0, 503 * guiScale)
-SaveBtn.BackgroundColor3 = Color3.fromRGB(160, 0, 255)
-SaveBtn.BackgroundTransparency = 0
+SaveBtn.BackgroundColor3 = C.purple
 SaveBtn.Text = "SAVE CONFIG"
 SaveBtn.TextColor3 = Color3.new(1, 1, 1)
 SaveBtn.Font = Enum.Font.GothamBold
