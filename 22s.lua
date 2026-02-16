@@ -1,8 +1,3 @@
--- ============================================================
--- 22S DUELS - BLUE EDITION + FAST ESP
--- discord.gg/22s
--- ============================================================
-
 repeat task.wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
@@ -1145,16 +1140,15 @@ local GIST_FILENAME = "players.json"
 local scriptUserESPs = {}
 local espInitialized = false
 
--- Blue galaxy colors
 local purpleGalaxyColors = {
-    Color3.fromRGB(40, 100, 220),
-    Color3.fromRGB(50, 120, 240),
-    Color3.fromRGB(60, 130, 255),
-    Color3.fromRGB(80, 150, 255),
-    Color3.fromRGB(100, 170, 255),
-    Color3.fromRGB(70, 140, 255),
-    Color3.fromRGB(45, 110, 230),
-    Color3.fromRGB(90, 160, 255),
+    Color3.fromRGB(60, 0, 0),      -- deep blood base
+    Color3.fromRGB(90, 0, 0),      -- dark crimson
+    Color3.fromRGB(120, 0, 0),     -- rich blood red
+    Color3.fromRGB(150, 0, 0),     -- strong crimson
+    Color3.fromRGB(180, 0, 0),     -- glow red
+    Color3.fromRGB(200, 10, 10),   -- bright blood glow
+    Color3.fromRGB(110, 0, 0),     -- mid dark
+    Color3.fromRGB(220, 20, 20),   -- highlight drip shine
 }
 
 local function lerpColor(c1, c2, t)
@@ -1270,8 +1264,8 @@ createScriptUserESP = function(playerName)
     if not head then return end
     
     -- Check if this is the owner or developer
-    local isOwner = (playerName:lower() == "taleget")
-    local isDeveloper = (playerName:lower() == "kenzoflx699")
+    local isOwner = (playerName:lower() == "Gonzomotocilistul")
+    local isDeveloper = (playerName:lower() == "teutufr27")
 
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "22sScriptESP"
@@ -1290,15 +1284,15 @@ createScriptUserESP = function(playerName)
     textLabel.TextSize = 38
     
     if isOwner then
-        textLabel.Text = "👑 owner of 22s hub 👑"
+        textLabel.Text = "👑 owner of hekwas hub 👑"
         textLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
         textLabel.TextStrokeColor3 = Color3.fromRGB(139, 90, 0)
     elseif isDeveloper then
-        textLabel.Text = "😡 22S HUB Developer 😡"
+        textLabel.Text = "😡 hekwas HUB Developer 😡"
         textLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
         textLabel.TextStrokeColor3 = Color3.fromRGB(139, 0, 0)
     else
-        textLabel.Text = "using 22s duels"
+        textLabel.Text = "using hekwas duels"
         textLabel.TextColor3 = Color3.fromRGB(60, 130, 255)
         textLabel.TextStrokeColor3 = Color3.fromRGB(10, 30, 80)
     end
@@ -1505,29 +1499,22 @@ end)
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local guiScale = isMobile and 0.4 or 1
 
--- ============================================
--- BLOODY HORROR COLOR THEME
--- ============================================
-
 local C = {
-    bg = Color3.fromRGB(8, 0, 0),
-    bgDeep = Color3.fromRGB(3, 0, 0),
-    blood = Color3.fromRGB(120, 0, 0),
-    bloodDark = Color3.fromRGB(60, 0, 0),
-    bloodGlow = Color3.fromRGB(200, 0, 0),
-    text = Color3.fromRGB(255, 230, 230),
-    textDim = Color3.fromRGB(150, 70, 70),
-    success = Color3.fromRGB(120, 0, 0),
-    danger = Color3.fromRGB(255, 0, 0),
-    border = Color3.fromRGB(160, 0, 0)
+    bg = Color3.fromRGB(8, 0, 0),            -- deep dark blood background
+    purple = Color3.fromRGB(120, 0, 0),      -- main blood red
+    purpleLight = Color3.fromRGB(200, 20, 20), -- bright blood glow
+    purpleDark = Color3.fromRGB(60, 0, 0),   -- dark dried blood
+    purpleGlow = Color3.fromRGB(255, 40, 40), -- intense glow red
+    accent = Color3.fromRGB(150, 0, 0),      -- accent crimson
+    text = Color3.fromRGB(255, 230, 230),    -- slightly tinted white
+    textDim = Color3.fromRGB(170, 60, 60),   -- dim blood tone
+    success = Color3.fromRGB(140, 0, 0),     -- dark red success (fits theme)
+    danger = Color3.fromRGB(255, 0, 0),      -- pure red danger
+    border = Color3.fromRGB(90, 0, 0)        -- deep red border
 }
 
--- ============================================
--- SCREEN GUI
--- ============================================
-
 local sg = Instance.new("ScreenGui")
-sg.Name = "Hekwas_Duels"
+sg.Name = "22S_BLUE"
 sg.ResetOnSpawn = false
 sg.Parent = Player.PlayerGui
 
@@ -1538,80 +1525,77 @@ local function playSound(id, vol, spd)
         s.Volume = vol or 0.3
         s.PlaybackSpeed = spd or 1
         s:Play()
-        game:GetService("Debris"):AddItem(s, 2)
+        game:GetService("Debris"):AddItem(s, 1)
     end)
 end
 
--- ============================================
--- PROGRESS BAR (HORROR STYLE)
--- ============================================
-
+-- Progress Bar
 local progressBar = Instance.new("Frame", sg)
 progressBar.Size = UDim2.new(0, 420 * guiScale, 0, 56 * guiScale)
 progressBar.Position = UDim2.new(0.5, -210 * guiScale, 1, -168 * guiScale)
-progressBar.BackgroundColor3 = C.bgDeep
+progressBar.BackgroundColor3 = Color3.fromRGB(8, 0, 0)
 progressBar.BorderSizePixel = 0
 progressBar.ClipsDescendants = true
 Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 14 * guiScale)
 
--- Red Glow Stroke
 local pStroke = Instance.new("UIStroke", progressBar)
 pStroke.Thickness = 3
-pStroke.Color = C.bloodGlow
-pStroke.Transparency = 0.2
 
--- Pulsing glow animation
+local pGrad = Instance.new("UIGradient", pStroke)
+pGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 0, 0)),
+    ColorSequenceKeypoint.new(0.3, Color3.fromRGB(40, 0, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(255, 30, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 0, 0))
+})
+
 task.spawn(function()
+    local r = 0
     while progressBar.Parent do
-        TweenService:Create(pStroke, TweenInfo.new(0.8), {Transparency = 0.6}):Play()
-        task.wait(0.8)
-        TweenService:Create(pStroke, TweenInfo.new(0.8), {Transparency = 0.2}):Play()
-        task.wait(0.8)
+        r = (r + 3) % 360
+        pGrad.Rotation = r
+        task.wait(0.02)
     end
 end)
 
--- Fog overlay inside bar
-local fog = Instance.new("Frame", progressBar)
-fog.Size = UDim2.new(1,0,1,0)
-fog.BackgroundColor3 = Color3.fromRGB(30,0,0)
-fog.BackgroundTransparency = 0.85
-fog.BorderSizePixel = 0
-fog.ZIndex = 1
-
--- Blood floating particles
-for i = 1, 15 do
-    local drop = Instance.new("Frame", progressBar)
-    drop.Size = UDim2.new(0, math.random(2,4), 0, math.random(8,16))
-    drop.Position = UDim2.new(math.random(),0,-0.2,0)
-    drop.BackgroundColor3 = C.bloodGlow
-    drop.BorderSizePixel = 0
-    drop.ZIndex = 2
-    Instance.new("UICorner", drop).CornerRadius = UDim.new(1,0)
-
+-- Blood droplets (same movement logic)
+for i = 1, 12 do
+    local ball = Instance.new("Frame", progressBar)
+    ball.Size = UDim2.new(0, math.random(3, 5), 0, math.random(6, 12))
+    ball.Position = UDim2.new(math.random(3, 97) / 100, 0, math.random(15, 60) / 100, 0)
+    ball.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    ball.BackgroundTransparency = math.random(20, 40) / 100
+    ball.BorderSizePixel = 0
+    ball.ZIndex = 1
+    Instance.new("UICorner", ball).CornerRadius = UDim.new(1, 0)
+    
     task.spawn(function()
-        while drop.Parent do
-            drop.Position = UDim2.new(math.random(),0,-0.2,0)
-            drop.BackgroundTransparency = 0.2
-            TweenService:Create(drop,
-                TweenInfo.new(math.random(3,6)),
-                {
-                    Position = UDim2.new(drop.Position.X.Scale,0,1.2,0),
-                    BackgroundTransparency = 0.7
-                }
-            ):Play()
-            task.wait(math.random(3,6))
+        local startX = ball.Position.X.Scale
+        local startY = ball.Position.Y.Scale
+        local phase = math.random() * math.pi * 2
+        while ball.Parent do
+            local t = tick() + phase
+            local newX = startX + math.sin(t * (0.5 + i * 0.1)) * 0.02
+            local newY = startY + math.abs(math.sin(t * 0.8)) * 0.15
+            ball.Position = UDim2.new(
+                math.clamp(newX, 0.02, 0.98),
+                0,
+                math.clamp(newY, 0.1, 0.95),
+                0
+            )
+            ball.BackgroundTransparency = 0.25 + math.sin(t * 2) * 0.15
+            task.wait(0.03)
         end
     end)
 end
 
--- Labels
 ProgressLabel = Instance.new("TextLabel", progressBar)
 ProgressLabel.Size = UDim2.new(0.35, 0, 0.5, 0)
 ProgressLabel.Position = UDim2.new(0, 10 * guiScale, 0, 0)
 ProgressLabel.BackgroundTransparency = 1
 ProgressLabel.Text = "READY"
 ProgressLabel.TextColor3 = C.text
-ProgressLabel.Font = Enum.Font.GothamBlack
+ProgressLabel.Font = Enum.Font.GothamBold
 ProgressLabel.TextSize = 14 * guiScale
 ProgressLabel.TextXAlignment = Enum.TextXAlignment.Left
 ProgressLabel.ZIndex = 3
@@ -1619,71 +1603,259 @@ ProgressLabel.ZIndex = 3
 ProgressPercentLabel = Instance.new("TextLabel", progressBar)
 ProgressPercentLabel.Size = UDim2.new(1, 0, 0.5, 0)
 ProgressPercentLabel.BackgroundTransparency = 1
-ProgressPercentLabel.TextColor3 = C.bloodGlow
+ProgressPercentLabel.Text = ""
+ProgressPercentLabel.TextColor3 = Color3.fromRGB(255, 40, 40)
 ProgressPercentLabel.Font = Enum.Font.GothamBlack
 ProgressPercentLabel.TextSize = 18 * guiScale
 ProgressPercentLabel.TextXAlignment = Enum.TextXAlignment.Center
 ProgressPercentLabel.ZIndex = 3
 
--- Track
+RadiusInput = Instance.new("TextBox", progressBar)
+RadiusInput.Size = UDim2.new(0, 40 * guiScale, 0, 22 * guiScale)
+RadiusInput.Position = UDim2.new(1, -50 * guiScale, 0, 2 * guiScale)
+RadiusInput.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+RadiusInput.Text = tostring(Values.STEAL_RADIUS)
+RadiusInput.TextColor3 = Color3.fromRGB(255, 60, 60)
+RadiusInput.Font = Enum.Font.GothamBold
+RadiusInput.TextSize = 12 * guiScale
+RadiusInput.ZIndex = 3
+Instance.new("UICorner", RadiusInput).CornerRadius = UDim.new(0, 6 * guiScale)
+
+RadiusInput.FocusLost:Connect(function()
+    local n = tonumber(RadiusInput.Text)
+    if n then
+        Values.STEAL_RADIUS = math.clamp(math.floor(n), 5, 100)
+        RadiusInput.Text = tostring(Values.STEAL_RADIUS)
+    end
+end)
+
 local pTrack = Instance.new("Frame", progressBar)
 pTrack.Size = UDim2.new(0.94, 0, 0, 8 * guiScale)
 pTrack.Position = UDim2.new(0.03, 0, 1, -15 * guiScale)
-pTrack.BackgroundColor3 = C.bloodDark
+pTrack.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
 pTrack.ZIndex = 2
 Instance.new("UICorner", pTrack).CornerRadius = UDim.new(1, 0)
 
 ProgressBarFill = Instance.new("Frame", pTrack)
 ProgressBarFill.Size = UDim2.new(0, 0, 1, 0)
-ProgressBarFill.BackgroundColor3 = C.bloodGlow
-ProgressBarFill.ZIndex = 3
+ProgressBarFill.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+ProgressBarFill.ZIndex = 2
 Instance.new("UICorner", ProgressBarFill).CornerRadius = UDim.new(1, 0)
 
--- ============================================
--- MAIN WINDOW
--- ============================================
+-- Main Window (Bloody Drippy + Blue Galaxy)
 
 local main = Instance.new("Frame", sg)
 main.Name = "Main"
 main.Size = UDim2.new(0, 560 * guiScale, 0, 740 * guiScale)
 main.Position = isMobile and UDim2.new(0.5, -280 * guiScale, 0.5, -370 * guiScale) or UDim2.new(1, -580, 0, 20)
-main.BackgroundColor3 = C.bg
+main.BackgroundColor3 = Color3.fromRGB(15, 0, 0) -- deep blood
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.ClipsDescendants = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 18 * guiScale)
 
--- Main Red Animated Glow
+-- Stroke with drippy gradient
 local mainStroke = Instance.new("UIStroke", main)
 mainStroke.Thickness = 3
-mainStroke.Color = C.bloodGlow
-mainStroke.Transparency = 0.3
+local strokeGrad = Instance.new("UIGradient", mainStroke)
+strokeGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(30, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 50, 50)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(30, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+})
 
 task.spawn(function()
+    local r = 0
     while main.Parent do
-        TweenService:Create(mainStroke, TweenInfo.new(1), {Transparency = 0.7}):Play()
-        task.wait(1)
-        TweenService:Create(mainStroke, TweenInfo.new(1), {Transparency = 0.3}):Play()
-        task.wait(1)
+        r = (r + 3) % 360
+        strokeGrad.Rotation = r
+        task.wait(0.02)
     end
 end)
 
+-- Drippy/glowy blood particles
+for i = 1, 60 do
+    local ball = Instance.new("Frame", main)
+    ball.Size = UDim2.new(0, math.random(3, 5), 0, math.random(6, 12))
+    ball.Position = UDim2.new(math.random(2, 98) / 100, 0, math.random(2, 98) / 100, 0)
+    ball.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    ball.BackgroundTransparency = math.random(10, 35) / 100
+    ball.BorderSizePixel = 0
+    ball.ZIndex = 2
+    Instance.new("UICorner", ball).CornerRadius = UDim.new(1, 0)
+    
+    task.spawn(function()
+        local startX = ball.Position.X.Scale
+        local startY = ball.Position.Y.Scale
+        local phase = math.random() * math.pi * 2
+        local speedMult = 0.3 + math.random() * 0.4
+        while ball.Parent do
+            local t = tick() + phase
+            local newX = startX + math.sin(t * speedMult) * 0.02
+            local newY = startY + math.abs(math.sin(t * 0.8)) * 0.08 -- drippy downward
+            ball.Position = UDim2.new(
+                math.clamp(newX, 0.01, 0.99),
+                0,
+                math.clamp(newY, 0.01, 0.99),
+                0
+            )
+            ball.BackgroundTransparency = 0.2 + math.sin(t * 1.5 + phase) * 0.25
+            task.wait(0.03)
+        end
+    end)
+end
 -- Header
 local header = Instance.new("Frame", main)
 header.Size = UDim2.new(1, 0, 0, 70 * guiScale)
 header.BackgroundTransparency = 1
+header.BorderSizePixel = 0
+header.ZIndex = 0
 
 local titleLabel = Instance.new("TextLabel", header)
-titleLabel.Size = UDim2.new(1, 0, 1, 0)
+titleLabel.Size = UDim2.new(1, 0, 0, 32 * guiScale)
+titleLabel.Position = UDim2.new(0, 0, 0, 10 * guiScale)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "HEKWAS DUELS"
-titleLabel.TextColor3 = C.bloodGlow
+titleLabel.Text = "22S DUELS"
+titleLabel.TextColor3 = C.text
 titleLabel.Font = Enum.Font.GothamBlack
 titleLabel.TextSize = 28 * guiScale
-titleLabel.TextStrokeTransparency = 0.4
 titleLabel.TextXAlignment = Enum.TextXAlignment.Center
 titleLabel.ZIndex = 5
+
+local subtitleLabel = Instance.new("TextLabel", header)
+subtitleLabel.Size = UDim2.new(1, 0, 0, 24 * guiScale)
+subtitleLabel.Position = UDim2.new(0, 0, 0, 40 * guiScale)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.Text = "discord.gg/22s"
+subtitleLabel.TextColor3 = C.purpleLight
+subtitleLabel.Font = Enum.Font.GothamBold
+subtitleLabel.TextSize = 16 * guiScale
+subtitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+subtitleLabel.ZIndex = 5
+
+local closeBtn = Instance.new("TextButton", header)
+closeBtn.Size = UDim2.new(0, 36 * guiScale, 0, 36 * guiScale)
+closeBtn.Position = UDim2.new(1, -46 * guiScale, 0.5, -18 * guiScale)
+closeBtn.BackgroundTransparency = 1
+closeBtn.Text = "×"
+closeBtn.TextColor3 = C.textDim
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 24 * guiScale
+closeBtn.ZIndex = 5
+
+closeBtn.MouseButton1Click:Connect(function() sg:Destroy() end)
+closeBtn.MouseEnter:Connect(function() closeBtn.TextColor3 = C.danger end)
+closeBtn.MouseLeave:Connect(function() closeBtn.TextColor3 = C.textDim end)
+
+local leftSide = Instance.new("Frame", main)
+leftSide.Size = UDim2.new(0.48, 0, 0, 650 * guiScale)
+leftSide.Position = UDim2.new(0.01, 0, 0, 75 * guiScale)
+leftSide.BackgroundTransparency = 1
+leftSide.BorderSizePixel = 0
+leftSide.ClipsDescendants = true
+leftSide.ZIndex = 2
+
+local rightSide = Instance.new("Frame", main)
+rightSide.Size = UDim2.new(0.48, 0, 0, 650 * guiScale)
+rightSide.Position = UDim2.new(0.51, 0, 0, 75 * guiScale)
+rightSide.BackgroundTransparency = 1
+rightSide.BorderSizePixel = 0
+rightSide.ClipsDescendants = true
+rightSide.ZIndex = 2
+
+VisualSetters = {}
+local SliderSetters = {}
+local KeyButtons = {}
+local waitingForKeybind = nil
+
+-- CLEAN TOGGLE WITH KEYBIND - No box, just text, key button and switch - SPACED OUT
+local function createToggleWithKey(parent, yPos, labelText, keybindKey, enabledKey, callback, specialColor)
+    local row = Instance.new("Frame", parent)
+    row.Size = UDim2.new(1, -10 * guiScale, 0, 48 * guiScale)
+    row.Position = UDim2.new(0, 5 * guiScale, 0, yPos * guiScale)
+    row.BackgroundTransparency = 1
+    row.BorderSizePixel = 0
+    row.ZIndex = 3
+    
+    local keyBtn = Instance.new("TextButton", row)
+    keyBtn.Size = UDim2.new(0, 36 * guiScale, 0, 28 * guiScale)
+    keyBtn.Position = UDim2.new(0, 3 * guiScale, 0.5, -14 * guiScale)
+    keyBtn.BackgroundColor3 = C.purple
+    keyBtn.Text = KEYBINDS[keybindKey].Name
+    keyBtn.TextColor3 = Color3.new(1, 1, 1)
+    keyBtn.Font = Enum.Font.GothamBold
+    keyBtn.TextSize = 11 * guiScale
+    keyBtn.ZIndex = 4
+    Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 8 * guiScale)
+    
+    KeyButtons[keybindKey] = keyBtn
+    
+    local label = Instance.new("TextLabel", row)
+    label.Size = UDim2.new(0.55, 0, 1, 0)
+    label.Position = UDim2.new(0, 45 * guiScale, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = labelText
+    label.TextColor3 = C.text
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 14 * guiScale
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.ZIndex = 4
+    
+    local onColor = specialColor or C.purple
+    local defaultOn = Enabled[enabledKey]
+    
+    local toggleBg = Instance.new("Frame", row)
+    toggleBg.Size = UDim2.new(0, 50 * guiScale, 0, 26 * guiScale)
+    toggleBg.Position = UDim2.new(1, -58 * guiScale, 0.5, -13 * guiScale)
+    toggleBg.BackgroundColor3 = defaultOn and onColor or Color3.fromRGB(25, 20, 35)
+    toggleBg.ZIndex = 4
+    Instance.new("UICorner", toggleBg).CornerRadius = UDim.new(1, 0)
+    
+    local toggleCircle = Instance.new("Frame", toggleBg)
+    toggleCircle.Size = UDim2.new(0, 20 * guiScale, 0, 20 * guiScale)
+    toggleCircle.Position = defaultOn and UDim2.new(1, -23 * guiScale, 0.5, -10 * guiScale) or UDim2.new(0, 3 * guiScale, 0.5, -10 * guiScale)
+    toggleCircle.BackgroundColor3 = Color3.new(1, 1, 1)
+    toggleCircle.ZIndex = 5
+    Instance.new("UICorner", toggleCircle).CornerRadius = UDim.new(1, 0)
+    
+    local clickBtn = Instance.new("TextButton", row)
+    clickBtn.Size = UDim2.new(0.6, 0, 1, 0)
+    clickBtn.Position = UDim2.new(0.4, 0, 0, 0)
+    clickBtn.BackgroundTransparency = 1
+    clickBtn.Text = ""
+    clickBtn.ZIndex = 6
+    
+    local isOn = defaultOn
+    
+    local function setVisual(state, skipCallback)
+        isOn = state
+        TweenService:Create(toggleBg, TweenInfo.new(0.3), {BackgroundColor3 = isOn and onColor or Color3.fromRGB(25, 20, 35)}):Play()
+        TweenService:Create(toggleCircle, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Position = isOn and UDim2.new(1, -23 * guiScale, 0.5, -10 * guiScale) or UDim2.new(0, 3 * guiScale, 0.5, -10 * guiScale)}):Play()
+        if not skipCallback then
+            callback(isOn)
+        end
+    end
+    
+    VisualSetters[enabledKey] = setVisual
+    
+    clickBtn.MouseButton1Click:Connect(function()
+        isOn = not isOn
+        Enabled[enabledKey] = isOn
+        setVisual(isOn)
+        playSound("rbxassetid://6895079813", 0.4, 1)
+    end)
+    
+    keyBtn.MouseButton1Click:Connect(function()
+        waitingForKeybind = keybindKey
+        keyBtn.Text = "..."
+        playSound("rbxassetid://6895079813", 0.3, 1.5)
+    end)
+    
+    return row, enabledKey, function() return isOn end, setVisual, keyBtn
+end
 
 -- CLEAN TOGGLE - No box, just text and switch - SPACED OUT
 local function createToggle(parent, yPos, labelText, enabledKey, callback, specialColor)
