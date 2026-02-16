@@ -1707,49 +1707,70 @@ for i = 1, 60 do
         end
     end)
 end
--- Header
+-- Header (Bloody Drippy + Blue Galaxy)
 local header = Instance.new("Frame", main)
 header.Size = UDim2.new(1, 0, 0, 70 * guiScale)
 header.BackgroundTransparency = 1
 header.BorderSizePixel = 0
 header.ZIndex = 0
 
+-- Title
 local titleLabel = Instance.new("TextLabel", header)
 titleLabel.Size = UDim2.new(1, 0, 0, 32 * guiScale)
 titleLabel.Position = UDim2.new(0, 0, 0, 10 * guiScale)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "22S DUELS"
-titleLabel.TextColor3 = C.text
+titleLabel.Text = "HEKWAS DUELS"
+titleLabel.TextColor3 = Color3.fromRGB(220, 20, 20) -- bloody red
 titleLabel.Font = Enum.Font.GothamBlack
 titleLabel.TextSize = 28 * guiScale
 titleLabel.TextXAlignment = Enum.TextXAlignment.Center
 titleLabel.ZIndex = 5
 
+-- Glowy pulsating effect for title
+local titleGlow = Instance.new("UIGradient", titleLabel)
+titleGlow.Rotation = 0
+titleGlow.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 0, 0)),
+})
+task.spawn(function()
+    local r = 0
+    while titleLabel.Parent do
+        r = (r + 3) % 360
+        titleGlow.Rotation = r
+        task.wait(0.02)
+    end
+end)
+
+-- Subtitle
 local subtitleLabel = Instance.new("TextLabel", header)
 subtitleLabel.Size = UDim2.new(1, 0, 0, 24 * guiScale)
 subtitleLabel.Position = UDim2.new(0, 0, 0, 40 * guiScale)
 subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "discord.gg/22s"
-subtitleLabel.TextColor3 = C.purpleLight
+subtitleLabel.Text = "hekwas pvp script"
+subtitleLabel.TextColor3 = Color3.fromRGB(100, 170, 255) -- Blue Galaxy
 subtitleLabel.Font = Enum.Font.GothamBold
 subtitleLabel.TextSize = 16 * guiScale
 subtitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 subtitleLabel.ZIndex = 5
 
+-- Close button
 local closeBtn = Instance.new("TextButton", header)
 closeBtn.Size = UDim2.new(0, 36 * guiScale, 0, 36 * guiScale)
 closeBtn.Position = UDim2.new(1, -46 * guiScale, 0.5, -18 * guiScale)
 closeBtn.BackgroundTransparency = 1
 closeBtn.Text = "×"
-closeBtn.TextColor3 = C.textDim
+closeBtn.TextColor3 = Color3.fromRGB(180, 0, 0) -- bloody red dim
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 24 * guiScale
 closeBtn.ZIndex = 5
 
 closeBtn.MouseButton1Click:Connect(function() sg:Destroy() end)
-closeBtn.MouseEnter:Connect(function() closeBtn.TextColor3 = C.danger end)
-closeBtn.MouseLeave:Connect(function() closeBtn.TextColor3 = C.textDim end)
+closeBtn.MouseEnter:Connect(function() closeBtn.TextColor3 = Color3.fromRGB(255, 50, 50) end)
+closeBtn.MouseLeave:Connect(function() closeBtn.TextColor3 = Color3.fromRGB(180, 0, 0) end)
 
+-- Left & Right Panels (unchanged, transparent)
 local leftSide = Instance.new("Frame", main)
 leftSide.Size = UDim2.new(0.48, 0, 0, 650 * guiScale)
 leftSide.Position = UDim2.new(0.01, 0, 0, 75 * guiScale)
@@ -1766,11 +1787,11 @@ rightSide.BorderSizePixel = 0
 rightSide.ClipsDescendants = true
 rightSide.ZIndex = 2
 
+-- Reset setters
 VisualSetters = {}
 local SliderSetters = {}
 local KeyButtons = {}
 local waitingForKeybind = nil
-
 -- CLEAN TOGGLE WITH KEYBIND - No box, just text, key button and switch - SPACED OUT
 local function createToggleWithKey(parent, yPos, labelText, keybindKey, enabledKey, callback, specialColor)
     local row = Instance.new("Frame", parent)
